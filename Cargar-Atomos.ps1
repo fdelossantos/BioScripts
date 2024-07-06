@@ -1,8 +1,17 @@
-# Define la ruta del archivo PDB
-$pdbFilePath = "C:\Users\feder\Facultad de Ingenieria - Universidad ORT Uruguay\2024 Obl Bioinfo2 CM-FD - General\8JD3\coordenadas.txt"
+# Modificado a partir de respuesta de ChatGPT
+# https://chatgpt.com/share/4a5903be-ab57-4000-a31e-29625e022e93
+
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory)]
+    [string]
+    $pdbFilePath
+)
+
+# $pdbFilePath = "C:\Users\feder\Facultad de Ingenieria - Universidad ORT Uruguay\2024 Obl Bioinfo2 CM-FD - General\8JD3\coordenadas.txt"
 
 # Lee las líneas del archivo PDB
-$pdbLines = Get-Content -Path $pdbFilePath # | Select-String "^ATOM"
+$pdbLines = Get-Content -Path $pdbFilePath
 
 # Conexión a la base de datos SQL Server
 $server = "localhost"
@@ -11,7 +20,7 @@ $table = "Atomos"
 $connectionString = "Server=$server;Database=$database;Integrated Security=True;TrustServerCertificate=True"
 
 # Función para parsear las líneas ATOM del archivo PDB
-function Parse-AtomLine {
+function Get-AtomLine {
     param (
         [string]$line
     )
@@ -36,7 +45,7 @@ function Parse-AtomLine {
 }
 
 # Función para insertar los datos en la base de datos SQL Server
-function Insert-AtomData {
+function Add-AtomData {
     param (
         [string]$connectionString,
         [hashtable]$atomData
@@ -54,8 +63,8 @@ VALUES
 
 # Procesar las líneas y insertar en la base de datos
 foreach ($line in $pdbLines) {
-    $atomData = Parse-AtomLine -line $line
-    Insert-AtomData -connectionString $connectionString -atomData $atomData
+    $atomData = Get-AtomLine -line $line
+    Add-AtomData -connectionString $connectionString -atomData $atomData
 }
 
 Write-Host "Importación completada."
